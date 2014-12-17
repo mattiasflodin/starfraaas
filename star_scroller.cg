@@ -1,0 +1,29 @@
+struct output {
+    float4 position : POSITION;
+    float4 color : COLOR;
+    float4 texcoord0 : TEXCOORD0;
+};
+
+output main(int4 position : POSITION, uniform float4 t : c0, uniform float4 offsets[3] : c1)
+{
+    output o;
+    float3 p = position.xyz/float3(32767, 32767, 32767);
+    float2 offset = offsets[position.w];
+    float2 uv = offset/1.1 + float2(0.5, 0.65);
+    
+	p.x += t.x;
+	p.x -= 2*step(1.0, p.x);
+	p.y += t.y;
+	p.y -= 2*step(1.0, p.y);
+    p.z -= t.z;
+	p.z += 1.0 - step(0, p.z);
+	
+    float size = lerp(0.04, 0.004, p.z*p.z);
+    //float size = 1;
+    offset.xy *= size;
+
+    o.position = float4(p.x/p.z + offset.x, p.y/p.z + offset.y, 0, 1.0);
+    o.color = 1.0;
+    o.texcoord0 = float4(uv.x, uv.y, 0, 1.0);
+    return o;
+}

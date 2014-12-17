@@ -1,0 +1,19 @@
+struct output {
+    float4 position : POSITION;
+    float4 color : COLOR;
+    float2 texcoord : TEXCOORD0;
+};
+
+output main(float2 position : POSITION, uniform float4 phase: c0, uniform float4 placement: c1)
+{
+    output o;
+    //o.position = float4(position.x, position.y, 0, 1);
+    o.position = float4(position.x + phase.z*sin(8*position.y + phase.x),
+		position.y + phase.z*sin(8*position.x + phase.y), 0, 1);
+    o.position.xy *= phase.w;
+    o.position.xy *= placement.w;
+    o.position.xy += placement.xy;
+    o.color = float4(1.0, 1.0, 1.0, 1.0);
+    o.texcoord = float2(position)*0.5 + float2(0.5);
+    return o;
+}

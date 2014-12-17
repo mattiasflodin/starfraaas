@@ -1,0 +1,37 @@
+struct output {
+    float4 position : POSITION;
+    float4 color : COLOR;
+    float4 texcoord0 : TEXCOORD0;
+};
+
+output main(int4 position : POSITION, uniform float4 color: c0, uniform float4 offsets[3] : c1, uniform float3x3 orientation : c4)
+{
+    output o;
+    float3 p = position.xyz/float3(32767, 32767, 32767);
+    p = mul(orientation, p);
+    
+    // Color by depth
+    o.color.xyz = (1.0 - (p.z + 1.0)*0.5);
+    o.color.xyz *= color.xyz;
+    o.color.w = 1.0;
+    
+    // Scale object
+    p.xyz *= color.w;
+    
+    // Move object into frustum
+    p.z += 0.5;
+    
+    // Aspect ratio correction
+    p.x *= 3.0/4.0;
+
+    float2 offset = offsets[position.w].xy;
+    float2 uv = offset/1.1 + float2(0.5, 0.65);
+    
+    float size = lerp(0.04, 0.004, p.z*p.z);
+    //float size = 1;
+    offset.xy *= size;
+
+    o.position = float4(p.x/p.z + offset.x, p.y/p.z + offset.y, 0, 1.0);
+    o.texcoord0 = float4(uv.x, uv.y, 0, 1.0);
+    return o;
+}
